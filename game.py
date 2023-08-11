@@ -368,8 +368,10 @@ def main(window):
 
     for i in range(len(fire)):
         fire[i].on()
+
     floor = [Block(i * block_size, HEIGHT - block_size, block_size)
-             for i in range(-WIDTH // block_size, (WIDTH * 2) // block_size)]
+             for i in range(0, (WIDTH * 2) // block_size)]
+             
     objects = [*floor,
                 *blocks,
                 *fire
