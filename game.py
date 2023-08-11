@@ -283,9 +283,11 @@ def main(window):
 
     block_size = 96
 
-    player = Player(100, HEIGHT - block_size, 50, 50)
-    fire = [Fire(300, HEIGHT - block_size - 64, 16, 32),
-            Fire(650, HEIGHT - block_size * 4 - 64, 16, 32)]
+    player = Player(block_size, HEIGHT - block_size, 50, 50)
+    fire = [Fire(block_size * 3, HEIGHT - block_size - 64, 16, 32),
+            Fire(block_size * 6 + 70, HEIGHT - block_size * 4 - 64, 16, 32),
+            Fire(block_size * 13, HEIGHT - block_size - 64, 16, 32),
+            Fire(block_size * 16, HEIGHT - block_size - 64, 16, 32)]
     for i in range(len(fire)):
         fire[i].on()
     floor = [Block(i * block_size, HEIGHT - block_size, block_size)
@@ -299,8 +301,28 @@ def main(window):
                 Block(block_size * 4, HEIGHT - block_size * 2, block_size),
                 Block(block_size * 6, HEIGHT - block_size * 4, block_size),
                 Block(block_size * 7, HEIGHT - block_size * 4, block_size),
+                Block(block_size * 7, HEIGHT - block_size * 4, block_size),
+                Block(block_size * 10, HEIGHT - block_size * 2, block_size),
+                Block(block_size * 10, HEIGHT - block_size * 3, block_size),
+                Block(block_size * 10, HEIGHT - block_size * 4, block_size),
+                Block(block_size * 10, HEIGHT - block_size * 5, block_size),
+                Block(block_size * 13, HEIGHT - block_size * 4, block_size),
+                Block(block_size * 13, HEIGHT - block_size * 5, block_size),
+                Block(block_size * 13, HEIGHT - block_size * 6, block_size),
+                Block(block_size * 13, HEIGHT - block_size * 7, block_size),
+                Block(block_size * 13, HEIGHT - block_size * 8, block_size),
+                Block(block_size * 20, HEIGHT - block_size, block_size),
+                Block(block_size * 20, HEIGHT - block_size * 2, block_size),
+                Block(block_size * 20, HEIGHT - block_size * 3, block_size),
+                Block(block_size * 20, HEIGHT - block_size * 4, block_size),
+                Block(block_size * 20, HEIGHT - block_size * 5, block_size),
+                Block(block_size * 19, HEIGHT - block_size * 5, block_size),
+                Block(block_size * 18, HEIGHT - block_size * 5, block_size),
+                Block(block_size * 17, HEIGHT - block_size * 5, block_size),
                 fire[0],
-                fire[1]
+                fire[1],
+                fire[2],
+                fire[3]
                 ]
 
     offset_x = 0
