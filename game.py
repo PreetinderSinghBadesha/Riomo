@@ -2,6 +2,7 @@ import os
 import random
 import math
 import pygame
+import button
 from os import listdir
 from os.path import isfile, join
 pygame.init()
@@ -214,6 +215,19 @@ def get_background(name):
 
     return tiles, image
 
+def draw_bg(window, background, bg_image):
+    for tile in background:
+        window.blit(bg_image, tile)
+
+    red = (255, 0, 0)
+
+    font = pygame.font.Font('Caprasimo-Regular.ttf', 70)
+    text = font.render('RIOMO', True, red)
+    textRect = text.get_rect()
+    textRect.center = (WIDTH // 2, HEIGHT // 2.8)
+    window.blit(text, textRect)
+
+    pygame.display.update()
 
 def draw(window, background, bg_image, player, objects, offset_x):
     for tile in background:
@@ -277,6 +291,41 @@ def handle_move(player, objects):
             player.make_hit()
 
 
+def menu(window):
+    clock = pygame.time.Clock()
+    background, bg_image = get_background("Blue.png")
+
+    start_img = pygame.image.load('start_btn.png').convert_alpha()
+    exit_img = pygame.image.load('exit_btn.png').convert_alpha()
+
+    start_button = button.Button(300, 400, start_img, 0.5)
+    exit_button = button.Button(600, 400, exit_img, 0.5)
+
+    run_menu = True
+
+    while run_menu:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+        draw_bg(window, background, bg_image)
+
+        if start_button.draw(window):
+            run_menu = False
+            main(window)
+        
+        if exit_button.draw(window):
+            pygame.quit()
+            quit()
+
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
+
 def main(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
@@ -330,6 +379,7 @@ def main(window):
     scroll_area_width = 200
 
     run = True
+
     while run:
         clock.tick(FPS)
 
@@ -356,5 +406,6 @@ def main(window):
     quit()
 
 
+
 if __name__ == "__main__":
-    main(window)
+    menu(window)
