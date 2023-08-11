@@ -284,8 +284,10 @@ def main(window):
     block_size = 96
 
     player = Player(100, HEIGHT - block_size, 50, 50)
-    fire = Fire(300, HEIGHT - block_size - 64, 16, 32)
-    fire.on()
+    fire = [Fire(300, HEIGHT - block_size - 64, 16, 32),
+            Fire(650, HEIGHT - block_size * 4 - 64, 16, 32)]
+    for i in range(len(fire)):
+        fire[i].on()
     floor = [Block(i * block_size, HEIGHT - block_size, block_size)
              for i in range(-WIDTH // block_size, (WIDTH * 2) // block_size)]
     objects = [*floor,
@@ -297,8 +299,8 @@ def main(window):
                 Block(block_size * 4, HEIGHT - block_size * 2, block_size),
                 Block(block_size * 6, HEIGHT - block_size * 4, block_size),
                 Block(block_size * 7, HEIGHT - block_size * 4, block_size),
-                fire,
-                Fire(200, HEIGHT - block_size - 64, 16, 32)
+                fire[0],
+                fire[1]
                 ]
 
     offset_x = 0
@@ -318,7 +320,8 @@ def main(window):
                     player.jump()
 
         player.loop(FPS)
-        fire.loop()
+        for i in range(len(fire)):
+            fire[i].loop()
         handle_move(player, objects)
         draw(window, background, bg_image, player, objects, offset_x)
 
