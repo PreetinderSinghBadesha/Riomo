@@ -53,10 +53,117 @@ def get_block(size):
     return pygame.transform.scale2x(surface)
 
 
+class OptionBox():
+
+    def __init__(self, x, y, w, h, color, highlight_color, font, option_list, selected = 0):
+        self.color = color
+        self.highlight_color = highlight_color
+        self.rect = pygame.Rect(x, y, w, h)
+        self.font = font
+        self.option_list = option_list
+        self.selected = selected
+        self.draw_menu = False
+        self.menu_active = False
+        self.active_option = -1
+
+    def draw(self, surf):
+        pygame.draw.rect(surf, self.highlight_color if self.menu_active else self.color, self.rect)
+        pygame.draw.rect(surf, (0, 0, 0), self.rect, 2)
+        msg = self.font.render(self.option_list[self.selected], 1, (0, 0, 0))
+        surf.blit(msg, msg.get_rect(center = self.rect.center))
+
+        if self.draw_menu:
+            for i, text in enumerate(self.option_list):
+                rect = self.rect.copy()
+                rect.y += (i+1) * self.rect.height
+                pygame.draw.rect(surf, self.highlight_color if i == self.active_option else self.color, rect)
+                msg = self.font.render(text, 1, (0, 0, 0))
+                surf.blit(msg, msg.get_rect(center = rect.center))
+            outer_rect = (self.rect.x, self.rect.y + self.rect.height, self.rect.width, self.rect.height * len(self.option_list))
+            pygame.draw.rect(surf, (0, 0, 0), outer_rect, 2)
+
+    def update(self, event_list):
+        mpos = pygame.mouse.get_pos()
+        self.menu_active = self.rect.collidepoint(mpos)
+        
+        self.active_option = -1
+        for i in range(len(self.option_list)):
+            rect = self.rect.copy()
+            rect.y += (i+1) * self.rect.height
+            if rect.collidepoint(mpos):
+                self.active_option = i
+                break
+
+        if not self.menu_active and self.active_option == -1:
+            self.draw_menu = False
+
+        for event in event_list:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.menu_active:
+                    self.draw_menu = not self.draw_menu
+                elif self.draw_menu and self.active_option >= 0:
+                    self.selected = self.active_option
+                    self.draw_menu = False
+                    return self.active_option
+        return -1
+
+character_options = OptionBox(
+    600, 265, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
+    ["MaskDude", "NinjaFrog", "PinkMan", "VirtualGuy"])
+
+user_character = "MaskDude"
+
+
+def setting(window):
+    clock = pygame.time.Clock()
+    background, bg_image = get_background("Blue.png")
+
+    back_img_path = join("assets", "Menu", "Buttons", "Back.png")
+    back_img = pygame.image.load(back_img_path).convert_alpha()
+    back_button = button.Button(950, 20, back_img, 3)
+
+    global user_character
+
+    run_setting = True
+
+    while run_setting:
+        clock.tick(FPS)
+
+        event_list = pygame.event.get()
+        for event in event_list:
+            if event.type == pygame.QUIT:
+                run_setting = False
+                break
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run_setting = False
+                    menu(window)
+
+        selected_option = character_options.update(event_list)
+        if selected_option >= 0:
+            if selected_option == 0:
+                user_character = "MaskDude"
+            elif selected_option == 1:
+                user_character = "NinjaFrog"
+            elif selected_option == 2:
+                user_character = "PinkMan"
+            elif selected_option == 3:
+                user_character = "VirtualGuy"
+
+        draw_setting(window, background, bg_image, back_button)
+
+        
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
+
+
 class Player(pygame.sprite.Sprite):
     COLOR = (255, 0, 0)
     GRAVITY = 1
-    SPRITES = load_sprite_sheets("MainCharacters", "MaskDude", 32, 32, True)
+    SPRITES = load_sprite_sheets("MainCharacters", user_character, 32, 32, True)
     ANIMATION_DELAY = 3
 
     def __init__(self, x, y, width, height):
@@ -133,6 +240,8 @@ class Player(pygame.sprite.Sprite):
             sprite_sheet = "fall"
         elif self.x_vel != 0:
             sprite_sheet = "run"
+
+        Player.SPRITES = load_sprite_sheets("MainCharacters", user_character, 32, 32, True)
 
         sprite_sheet_name = sprite_sheet + "_" + self.direction
         sprites = self.SPRITES[sprite_sheet_name]
@@ -214,9 +323,21 @@ def get_background(name):
 
     return tiles, image
 
-def draw_setting(window, background, bg_image):
+def draw_setting(window, background, bg_image, back_button):
     for tile in background:
         window.blit(bg_image, tile)
+
+    font = pygame.font.Font('Caprasimo-Regular.ttf', 40)
+    text = font.render('Character', True, (0, 0, 0))
+    textRect = text.get_rect()
+    textRect.center = (WIDTH // 3, HEIGHT // 2.8)
+    window.blit(text, textRect)
+
+    if back_button.draw(window):
+            run_setting = False
+            menu(window)
+
+    character_options.draw(window)
 
     pygame.display.update()
 
@@ -306,28 +427,6 @@ def handle_move(player, objects):
         if obj and obj.name == "fire":
             player.make_hit()
 
-def setting(window):
-    clock = pygame.time.Clock()
-    background, bg_image = get_background("Blue.png")
-
-    run_setting = True
-
-    while run_setting:
-        clock.tick(FPS)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run_setting = False
-                break
-
-        draw_setting(window, background, bg_image)
-
-        
-        pygame.display.update()
-
-    pygame.quit()
-    quit()
-
 def menu(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
@@ -353,17 +452,6 @@ def menu(window):
 
         draw_menu(window, background, bg_image, start_button, setting_button, exit_button)
 
-        if start_button.draw(window):
-            run_menu = False
-            main(window)
-
-        if setting_button.draw(window):
-            run_menu = False
-            setting(window)
-        
-        if exit_button.draw(window):
-            pygame.quit()
-            quit()
 
         pygame.display.update()
 
