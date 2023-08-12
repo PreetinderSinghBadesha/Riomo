@@ -15,7 +15,6 @@ PLAYER_VEL = 5
 
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 
-
 def flip(sprites):
     return [pygame.transform.flip(sprite, True, False) for sprite in sprites]
 
@@ -344,6 +343,7 @@ def main(window):
             Block(0, HEIGHT - block_size * 4, block_size),
             Block(0, HEIGHT - block_size * 5, block_size),
             Block(0, HEIGHT - block_size * 6, block_size),
+            Block(block_size * 4, HEIGHT - block_size * 3, block_size),
             Block(block_size * 4, HEIGHT - block_size * 2, block_size),
             Block(block_size * 6, HEIGHT - block_size * 4, block_size),
             Block(block_size * 7, HEIGHT - block_size * 4, block_size),
@@ -356,26 +356,17 @@ def main(window):
             Block(block_size * 13, HEIGHT - block_size * 5, block_size),
             Block(block_size * 13, HEIGHT - block_size * 6, block_size),
             Block(block_size * 13, HEIGHT - block_size * 7, block_size),
-            Block(block_size * 13, HEIGHT - block_size * 8, block_size),
-            Block(block_size * 20, HEIGHT - block_size, block_size),
-            Block(block_size * 20, HEIGHT - block_size * 2, block_size),
-            Block(block_size * 20, HEIGHT - block_size * 3, block_size),
-            Block(block_size * 20, HEIGHT - block_size * 4, block_size),
-            Block(block_size * 20, HEIGHT - block_size * 5, block_size),
-            Block(block_size * 19, HEIGHT - block_size * 5, block_size),
-            Block(block_size * 18, HEIGHT - block_size * 5, block_size),
-            Block(block_size * 17, HEIGHT - block_size * 5, block_size),]
+            Block(block_size * 13, HEIGHT - block_size * 8, block_size)]
 
     for i in range(len(fire)):
         fire[i].on()
 
     floor = [Block(i * block_size, HEIGHT - block_size, block_size)
-             for i in range(0, (WIDTH * 2) // block_size)]
-             
+             for i in range(0, (WIDTH * 3) // block_size)]
+
     objects = [*floor,
                 *blocks,
-                *fire
-                ]
+                *fire]
 
     offset_x = 0
     scroll_area_width = 200
@@ -393,6 +384,11 @@ def main(window):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and player.jump_count < 2:
                     player.jump()
+
+                if event.key == pygame.K_ESCAPE :
+                    run = False
+                    menu(window)
+
 
         player.loop(FPS)
         for i in range(len(fire)):
