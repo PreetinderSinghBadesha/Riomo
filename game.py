@@ -214,11 +214,28 @@ def get_background(name):
 
     return tiles, image
 
-def draw_bg(window, background, bg_image):
+def draw_setting(window, background, bg_image):
     for tile in background:
         window.blit(bg_image, tile)
 
+    pygame.display.update()
+
+def draw_menu(window, background, bg_image, start_button, setting_button, exit_button):
     red = (255, 0, 0)
+    for tile in background:
+        window.blit(bg_image, tile)
+
+    if start_button.draw(window):
+            run_menu = False
+            main(window)
+
+    if setting_button.draw(window):
+            run_menu = False
+            setting(window)
+        
+    if exit_button.draw(window):
+            pygame.quit()
+            quit()
 
     font = pygame.font.Font('Caprasimo-Regular.ttf', 70)
     text = font.render('RIOMO', True, red)
@@ -289,16 +306,40 @@ def handle_move(player, objects):
         if obj and obj.name == "fire":
             player.make_hit()
 
+def setting(window):
+    clock = pygame.time.Clock()
+    background, bg_image = get_background("Blue.png")
+
+    run_setting = True
+
+    while run_setting:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run_setting = False
+                break
+
+        draw_setting(window, background, bg_image)
+
+        
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
 
 def menu(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
 
+    setting_img_path = join("assets", "Menu", "Buttons", "Settings.png")
     start_img = pygame.image.load('start_btn.png').convert_alpha()
     exit_img = pygame.image.load('exit_btn.png').convert_alpha()
+    setting_img = pygame.image.load(setting_img_path).convert_alpha()
 
     start_button = button.Button(300, 400, start_img, 0.5)
     exit_button = button.Button(600, 400, exit_img, 0.5)
+    setting_button = button.Button(950, 20, setting_img, 2)
 
     run_menu = True
 
@@ -307,14 +348,18 @@ def menu(window):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                run_menu = False
                 break
 
-        draw_bg(window, background, bg_image)
+        draw_menu(window, background, bg_image, start_button, setting_button, exit_button)
 
         if start_button.draw(window):
             run_menu = False
             main(window)
+
+        if setting_button.draw(window):
+            run_menu = False
+            setting(window)
         
         if exit_button.draw(window):
             pygame.quit()
