@@ -1,11 +1,9 @@
-import os
-import random
-import math
 import pygame
 import button
 from os import listdir
 from os.path import isfile, join
 pygame.init()
+pygame.mixer.init()
 
 pygame.display.set_caption("Riomo")
 
@@ -14,6 +12,26 @@ FPS = 60
 PLAYER_VEL = 5
 
 window = pygame.display.set_mode((WIDTH, HEIGHT))
+
+
+def play_main_music():
+    main_music_path = join("assets", "Audio", "cottagecore-17463.mp3")
+    main_music = pygame.mixer.Sound(main_music_path)
+    pygame.mixer.Sound.play(main_music)
+
+def play_jump_music():
+    jump_music_path = join("assets", "Audio", "cartoon-jump-6462.mp3")
+    pygame.mixer.music.load(jump_music_path)
+    pygame.mixer.music.set_volume(0.7)
+    pygame.mixer.music.play()
+
+def play_damage_music():
+    damage_music_path = join("assets", "Audio", "2G7CF5V-gamers-fail-game.mp3")
+    pygame.mixer.music.load(damage_music_path)
+    pygame.mixer.music.set_volume(0.7)
+    pygame.mixer.music.play()
+
+play_main_music()
 
 def flip(sprites):
     return [pygame.transform.flip(sprite, True, False) for sprite in sprites]
@@ -210,8 +228,10 @@ class Player(pygame.sprite.Sprite):
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
+        self.hearts = 3
 
     def jump(self):
+        play_jump_music()
         self.y_vel = -self.GRAVITY * 8
         self.animation_count = 0
         self.jump_count += 1
@@ -223,7 +243,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += dy
 
     def make_hit(self):
-        self.hit = True
+        self.hit = True        
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -246,6 +266,8 @@ class Player(pygame.sprite.Sprite):
         if self.hit_count > fps * 2:
             self.hit = False
             self.hit_count = 0
+            self.hearts -= 1
+            play_damage_music()
 
         self.fall_count += 1
         self.update_sprite()
@@ -287,8 +309,21 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.sprite.get_rect(topleft=(self.rect.x, self.rect.y))
         self.mask = pygame.mask.from_surface(self.sprite)
 
-    def draw(self, win, offset_x):
+    def draw(self, win, offset_x, HEART_1, HEART_2, HEART_3):
         win.blit(self.sprite, (self.rect.x - offset_x, self.rect.y))
+        if self.hearts == 3:
+            win.blit(HEART_1, (WIDTH // 2 + 100, 50))
+            
+        if self.hearts >= 2:
+            win.blit(HEART_2, (WIDTH // 2 , 50))
+
+        if self.hearts >= 1:
+            win.blit(HEART_3, (WIDTH // 2 - 100, 50))
+
+        if self.hearts <= 0:
+            run = False
+            menu(window)
+            self.hearts = 3
 
 
 class Object(pygame.sprite.Sprite):
@@ -404,13 +439,18 @@ def draw_menu(window, background, bg_image, start_button, setting_button, exit_b
     pygame.display.update()
 
 def draw(window, background, bg_image, player, objects, offset_x):
+    HEART = pygame.image.load('heart.png')
+    HEART_1 = pygame.transform.scale(HEART, (50, 50))
+    HEART_2 = pygame.transform.scale(HEART, (50, 50))
+    HEART_3 = pygame.transform.scale(HEART, (50, 50))
+
     for tile in background:
         window.blit(bg_image, tile)
 
     for obj in objects:
         obj.draw(window, offset_x)
 
-    player.draw(window, offset_x)
+    player.draw(window, offset_x, HEART_1, HEART_2, HEART_3)
 
     pygame.display.update()
 
