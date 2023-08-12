@@ -44,14 +44,6 @@ def load_sprite_sheets(dir1, dir2, width, height, direction=False):
     return all_sprites
 
 
-def get_block(size):
-    path = join("assets", "Terrain", "Terrain.png")
-    image = pygame.image.load(path).convert_alpha()
-    surface = pygame.Surface((size, size), pygame.SRCALPHA, 32)
-    rect = pygame.Rect(96, 0, size, size)
-    surface.blit(image, (0, 0), rect)
-    return pygame.transform.scale2x(surface)
-
 
 class OptionBox():
 
@@ -111,8 +103,12 @@ character_options = OptionBox(
     600, 265, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
     ["MaskDude", "NinjaFrog", "PinkMan", "VirtualGuy"])
 
-user_character = "MaskDude"
+block_options = OptionBox(
+    600, 460, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
+    ["1", "2", "3", "4", "5", "6"])
 
+user_character = "MaskDude"
+block_choice = 2
 
 def setting(window):
     clock = pygame.time.Clock()
@@ -123,6 +119,7 @@ def setting(window):
     back_button = button.Button(950, 20, back_img, 3)
 
     global user_character
+    global block_choice
 
     run_setting = True
 
@@ -140,16 +137,31 @@ def setting(window):
                     run_setting = False
                     menu(window)
 
-        selected_option = character_options.update(event_list)
-        if selected_option >= 0:
-            if selected_option == 0:
+        selected_character_option = character_options.update(event_list)
+        if selected_character_option >= 0:
+            if selected_character_option == 0:
                 user_character = "MaskDude"
-            elif selected_option == 1:
+            elif selected_character_option == 1:
                 user_character = "NinjaFrog"
-            elif selected_option == 2:
+            elif selected_character_option == 2:
                 user_character = "PinkMan"
-            elif selected_option == 3:
+            elif selected_character_option == 3:
                 user_character = "VirtualGuy"
+
+        selected_block_option = block_options.update(event_list)
+        if selected_block_option >= 0:
+            if selected_block_option == 0:
+                block_choice = 1
+            elif selected_block_option == 1:
+                block_choice = 2
+            elif selected_block_option == 2:
+                block_choice = 3
+            elif selected_block_option == 3:
+                block_choice = 4
+            elif selected_block_option == 4:
+                block_choice = 5
+            elif selected_block_option == 5:
+                block_choice = 6
 
         draw_setting(window, background, bg_image, back_button)
 
@@ -158,6 +170,26 @@ def setting(window):
 
     pygame.quit()
     quit()
+
+def get_block(size):
+    if block_choice == 1:
+        block_x, block_y = 0, 0
+    elif block_choice == 2:
+        block_x, block_y = 96, 0
+    elif block_choice == 3:
+        block_x, block_y = 0, 64
+    elif block_choice == 4:
+        block_x, block_y = 96, 64
+    elif block_choice == 5:
+        block_x, block_y = 0, 128
+    elif block_choice == 6:
+        block_x, block_y = 96, 128
+    path = join("assets", "Terrain", "Terrain.png")
+    image = pygame.image.load(path).convert_alpha()
+    surface = pygame.Surface((size, size), pygame.SRCALPHA, 32)
+    rect = pygame.Rect(block_x, block_y, size, size)
+    surface.blit(image, (0, 0), rect)
+    return pygame.transform.scale2x(surface)
 
 
 class Player(pygame.sprite.Sprite):
@@ -332,12 +364,17 @@ def draw_setting(window, background, bg_image, back_button):
     textRect = text.get_rect()
     textRect.center = (WIDTH // 3, HEIGHT // 2.8)
     window.blit(text, textRect)
+    text_2 = font.render('Block', True, (0, 0, 0))
+    textRect_2 = text_2.get_rect()
+    textRect_2.center = (WIDTH // 3, 475)
+    window.blit(text_2, textRect_2)
 
     if back_button.draw(window):
             run_setting = False
             menu(window)
 
     character_options.draw(window)
+    block_options.draw(window)
 
     pygame.display.update()
 
