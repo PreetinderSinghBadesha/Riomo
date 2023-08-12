@@ -12,6 +12,7 @@ FPS = 60
 PLAYER_VEL = 5
 
 window = pygame.display.set_mode((WIDTH, HEIGHT))
+HEART = pygame.image.load('heart.png')
 
 
 def play_main_music():
@@ -128,13 +129,15 @@ block_options = OptionBox(
 user_character = "MaskDude"
 block_choice = 2
 
+
+
 def setting(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
 
     back_img_path = join("assets", "Menu", "Buttons", "Back.png")
     back_img = pygame.image.load(back_img_path).convert_alpha()
-    back_button = button.Button(950, 20, back_img, 3)
+    back_button = button.Button(925, 20, back_img, 3.5)
 
     global user_character
     global block_choice
@@ -439,7 +442,6 @@ def draw_menu(window, background, bg_image, start_button, setting_button, exit_b
     pygame.display.update()
 
 def draw(window, background, bg_image, player, objects, offset_x):
-    HEART = pygame.image.load('heart.png')
     HEART_1 = pygame.transform.scale(HEART, (50, 50))
     HEART_2 = pygame.transform.scale(HEART, (50, 50))
     HEART_3 = pygame.transform.scale(HEART, (50, 50))
@@ -504,6 +506,7 @@ def handle_move(player, objects):
         if obj and obj.name == "fire":
             player.make_hit()
 
+
 def menu(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background("Blue.png")
@@ -515,7 +518,7 @@ def menu(window):
 
     start_button = button.Button(300, 400, start_img, 0.5)
     exit_button = button.Button(600, 400, exit_img, 0.5)
-    setting_button = button.Button(950, 20, setting_img, 2)
+    setting_button = button.Button(925, 20, setting_img, 2.5)
 
     run_menu = True
 
@@ -526,6 +529,11 @@ def menu(window):
             if event.type == pygame.QUIT:
                 run_menu = False
                 break
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_KP_ENTER or event.key == pygame.K_RETURN:
+                    run_menu = False
+                    main(window)
 
         draw_menu(window, background, bg_image, start_button, setting_button, exit_button)
 
