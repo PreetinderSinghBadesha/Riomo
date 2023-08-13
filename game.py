@@ -19,7 +19,6 @@ block_choice = 2
 music_choice = "1"
 background_choice = "Blue.png"
 
-
 main_music_path = join("assets", "Audio", "cottagecore-17463.mp3")
 main_music = pygame.mixer.Sound(main_music_path)
 pygame.mixer.Sound.play(main_music)
@@ -271,6 +270,7 @@ class Player(pygame.sprite.Sprite):
         self.hit = False
         self.hit_count = 0
         self.hearts = 3
+        self.shift = 2
 
     def jump(self):
         if music_choice == "1":
@@ -296,6 +296,13 @@ class Player(pygame.sprite.Sprite):
 
     def move_right(self, vel):
         self.x_vel = vel
+        if self.direction != "right":
+            self.direction = "right"
+            self.animation_count = 0
+            
+    def move_right_shift(self, vel):
+        self.x_vel = vel + 184
+        
         if self.direction != "right":
             self.direction = "right"
             self.animation_count = 0
@@ -355,6 +362,7 @@ class Player(pygame.sprite.Sprite):
 
     def draw(self, win, offset_x, HEART_1, HEART_2, HEART_3):
         win.blit(self.sprite, (self.rect.x - offset_x, self.rect.y))
+
         if self.hearts == 3:
             win.blit(HEART_1, (WIDTH // 2 + 100, 50))
             
@@ -532,6 +540,13 @@ def draw(window, background, bg_image, player, objects, offset_x):
 
     for tile in background:
         window.blit(bg_image, tile)
+    
+
+    font = pygame.font.Font('Caprasimo-Regular.ttf', 30)
+    text = font.render(f"Shift: {player.shift}", True, (225, 0, 0))
+    textRect = text.get_rect()
+    textRect.center = (900, 70)
+    window.blit(text, textRect)
 
     for obj in objects:
         obj.draw(window, offset_x)
@@ -578,10 +593,14 @@ def handle_move(player, objects):
     collide_left = collide(player, objects, -PLAYER_VEL * 2)
     collide_right = collide(player, objects, PLAYER_VEL * 2)
 
+
     if keys[pygame.K_LEFT] and not collide_left:
         player.move_left(PLAYER_VEL)
     if keys[pygame.K_RIGHT] and not collide_right:
         player.move_right(PLAYER_VEL)
+    if (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]) and not collide_right and (player.shift >= 1):
+        player.shift -= 1
+        player.move_right_shift(PLAYER_VEL)
 
     vertical_collide = handle_vertical_collision(player, objects, player.y_vel)
     to_check = [collide_left, collide_right, *vertical_collide]
