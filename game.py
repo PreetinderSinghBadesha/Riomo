@@ -380,6 +380,29 @@ class Fire(Object):
         if self.animation_count // self.ANIMATION_DELAY > len(sprites):
             self.animation_count = 0
 
+class Checkpoint(Object):
+    ANIMATION_DELAY = 3
+
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height, "flag")
+        self.flag = load_sprite_sheets("Items", "Checkpoints/checkpoint", width, height)
+        self.image = self.flag["on"][0]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.animation_count = 0
+        self.animation_name = "on"
+
+    def loop(self):
+        sprites = self.flag[self.animation_name]
+        sprite_index = 0
+        self.image = sprites[sprite_index]
+        self.animation_count += 1
+
+        self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+        if self.animation_count // self.ANIMATION_DELAY > len(sprites):
+            self.animation_count = 0
+        
 
 def get_background(name):
     image = pygame.image.load(join("assets", "Background", name))
@@ -506,6 +529,10 @@ def handle_move(player, objects):
         if obj and obj.name == "fire":
             player.make_hit()
 
+        if obj and obj.name == "flag":
+            run = False
+            menu(window)
+
 
 def menu(window):
     clock = pygame.time.Clock()
@@ -556,6 +583,8 @@ def main(window):
             Fire(block_size * 13, HEIGHT - block_size - 64, 16, 32),
             Fire(block_size * 16, HEIGHT - block_size - 64, 16, 32)]
 
+    checkpoint = [Checkpoint(block_size * 19, HEIGHT - block_size * 2 - 32, 50, 64)]
+
     blocks = [Block(0, HEIGHT - block_size * 2, block_size),
             Block(0, HEIGHT - block_size * 3, block_size),
             Block(0, HEIGHT - block_size * 4, block_size),
@@ -579,12 +608,14 @@ def main(window):
     for i in range(len(fire)):
         fire[i].on()
 
+
     floor = [Block(i * block_size, HEIGHT - block_size, block_size)
              for i in range(0, (WIDTH * 3) // block_size)]
 
     objects = [*floor,
                 *blocks,
-                *fire]
+                *fire,
+                *checkpoint]
 
     offset_x = 0
     scroll_area_width = 200
@@ -611,6 +642,8 @@ def main(window):
         player.loop(FPS)
         for i in range(len(fire)):
             fire[i].loop()
+        for i in range(len(checkpoint)):
+            checkpoint[i].loop()
         handle_move(player, objects)
         draw(window, background, bg_image, player, objects, offset_x)
 
@@ -620,8 +653,6 @@ def main(window):
 
     pygame.quit()
     quit()
-
-
 
 if __name__ == "__main__":
     menu(window)
