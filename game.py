@@ -14,11 +14,14 @@ PLAYER_VEL = 5
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 HEART = pygame.image.load('heart.png')
 
+user_character = "MaskDude"
+block_choice = 2
+music_choice = "1"
 
-def play_main_music():
-    main_music_path = join("assets", "Audio", "cottagecore-17463.mp3")
-    main_music = pygame.mixer.Sound(main_music_path)
-    pygame.mixer.Sound.play(main_music)
+
+main_music_path = join("assets", "Audio", "cottagecore-17463.mp3")
+main_music = pygame.mixer.Sound(main_music_path)
+pygame.mixer.Sound.play(main_music)
 
 def play_jump_music():
     jump_music_path = join("assets", "Audio", "cartoon-jump-6462.mp3")
@@ -32,7 +35,7 @@ def play_damage_music():
     pygame.mixer.music.set_volume(0.7)
     pygame.mixer.music.play()
 
-play_main_music()
+
 
 def flip(sprites):
     return [pygame.transform.flip(sprite, True, False) for sprite in sprites]
@@ -119,16 +122,16 @@ class OptionBox():
         return -1
 
 character_options = OptionBox(
-    600, 265, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
+    300, 265, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
     ["MaskDude", "NinjaFrog", "PinkMan", "VirtualGuy"])
 
 block_options = OptionBox(
-    600, 460, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
+    300, 460, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
     ["1", "2", "3", "4", "5", "6"])
 
-user_character = "MaskDude"
-block_choice = 2
-
+music_options = OptionBox(
+    700, 265, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
+    ["on", "off"])
 
 
 def setting(window):
@@ -141,6 +144,7 @@ def setting(window):
 
     global user_character
     global block_choice
+    global music_choice
 
     run_setting = True
 
@@ -183,14 +187,26 @@ def setting(window):
                 block_choice = 5
             elif selected_block_option == 5:
                 block_choice = 6
-
+    
         draw_setting(window, background, bg_image, back_button)
 
+
+        selected_music_option = music_options.update(event_list)
+        if selected_music_option >= 0:
+            if selected_music_option == 0:
+                music_choice = "1"
+                pygame.mixer.Sound.play(main_music)
+                
+            elif selected_music_option == 1:
+                music_choice = "2"  
+                pygame.mixer.Sound.stop(main_music)
+            
         
         pygame.display.update()
 
     pygame.quit()
     quit()
+
 
 def get_block(size):
     if block_choice == 1:
@@ -234,7 +250,8 @@ class Player(pygame.sprite.Sprite):
         self.hearts = 3
 
     def jump(self):
-        play_jump_music()
+        if music_choice == "1":
+            play_jump_music()
         self.y_vel = -self.GRAVITY * 8
         self.animation_count = 0
         self.jump_count += 1
@@ -270,7 +287,8 @@ class Player(pygame.sprite.Sprite):
             self.hit = False
             self.hit_count = 0
             self.hearts -= 1
-            play_damage_music()
+            if music_choice == "1":
+                play_damage_music()
 
         self.fall_count += 1
         self.update_sprite()
@@ -423,11 +441,15 @@ def draw_setting(window, background, bg_image, back_button):
     font = pygame.font.Font('Caprasimo-Regular.ttf', 40)
     text = font.render('Character', True, (0, 0, 0))
     textRect = text.get_rect()
-    textRect.center = (WIDTH // 3, HEIGHT // 2.8)
+    textRect.center = (120, 280)
     window.blit(text, textRect)
     text_2 = font.render('Block', True, (0, 0, 0))
     textRect_2 = text_2.get_rect()
-    textRect_2.center = (WIDTH // 3, 475)
+    textRect_2.center = (100, 475)
+    window.blit(text_2, textRect_2)
+    text_2 = font.render('Music', True, (0, 0, 0))
+    textRect_2 = text_2.get_rect()
+    textRect_2.center = (600, 280)
     window.blit(text_2, textRect_2)
 
     if back_button.draw(window):
@@ -436,6 +458,7 @@ def draw_setting(window, background, bg_image, back_button):
 
     character_options.draw(window)
     block_options.draw(window)
+    music_options.draw(window)
 
     pygame.display.update()
 
