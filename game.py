@@ -290,7 +290,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += dy
 
     def make_hit(self):
-        self.hit = True        
+        self.hit = True
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -434,6 +434,30 @@ class Fire(Object):
         if self.animation_count // self.ANIMATION_DELAY > len(sprites):
             self.animation_count = 0
 
+class Apple(Object):
+    ANIMATION_DELAY = 10
+
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height, "apple")
+        self.apple = load_sprite_sheets("Items", "Fruits", 22, 21)
+        self.image = self.apple["Apple"][0]
+        self.mask = pygame.mask.from_surface(self.image)
+        self.animation_count = 0
+        self.animation_name = "Apple"
+
+
+    def loop(self):
+        sprites = self.apple[self.animation_name]
+        sprite_index = (self.animation_count //self.ANIMATION_DELAY) % len(sprites)
+        self.image = sprites[0]
+        self.animation_count += 1
+
+        self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
+        self.mask = pygame.mask.from_surface(self.image)
+
+        if self.animation_count // self.ANIMATION_DELAY > len(sprites):
+            self.animation_count = 0
+
 class Checkpoint(Object):
     ANIMATION_DELAY = 3
 
@@ -451,11 +475,13 @@ class Checkpoint(Object):
         self.image = sprites[sprite_index]
         self.animation_count += 1
 
+
         self.rect = self.image.get_rect(topleft=(self.rect.x, self.rect.y))
         self.mask = pygame.mask.from_surface(self.image)
 
         if self.animation_count // self.ANIMATION_DELAY > len(sprites):
             self.animation_count = 0
+        
         
 
 def get_background(name):
@@ -655,6 +681,8 @@ def menu(window):
     pygame.quit()
     quit()
 
+
+
 def main(window):
     clock = pygame.time.Clock()
     background, bg_image = get_background(background_choice)
@@ -662,6 +690,10 @@ def main(window):
     block_size = 96
 
     player = Player(block_size, HEIGHT - block_size, 50, 50)
+
+    apple = [Apple(block_size * 2, HEIGHT - block_size * 3 - 41, 22, 22),
+            Apple(block_size * 1, HEIGHT - block_size * 3 - 41, 22, 22)]
+
 
     fire = [Fire(block_size * 3, HEIGHT - block_size - 64, 16, 32),
             Fire(block_size * 6 + 70, HEIGHT - block_size * 4 - 64, 16, 32),
@@ -697,10 +729,6 @@ def main(window):
     floor = [Block(i * block_size, HEIGHT - block_size, block_size)
              for i in range(0, (WIDTH * 3) // block_size)]
 
-    objects = [*floor,
-                *blocks,
-                *fire,
-                *checkpoint]
 
     offset_x = 0
     scroll_area_width = 200
@@ -709,6 +737,11 @@ def main(window):
 
     while run:
         clock.tick(FPS)
+        objects = [*floor,
+                *blocks,
+                *fire,
+                *checkpoint,
+                *apple]
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -723,12 +756,25 @@ def main(window):
                     run = False
                     menu(window)
 
-
         player.loop(FPS)
+
         for i in range(len(fire)):
             fire[i].loop()
+
         for i in range(len(checkpoint)):
             checkpoint[i].loop()
+ 
+        apples_to_remove = []
+        for i in range(len(apple)):
+            apple[i].loop()
+
+            if pygame.sprite.collide_mask(player, apple[i]):
+                apples_to_remove.append(apple[i])
+
+        for apple_obj in apples_to_remove:
+            apple.remove(apple_obj)
+            player.shift += 1
+
         handle_move(player, objects)
         draw(window, background, bg_image, player, objects, offset_x)
 
