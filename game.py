@@ -17,6 +17,7 @@ HEART = pygame.image.load('heart.png')
 user_character = "MaskDude"
 block_choice = 2
 music_choice = "1"
+background_choice = "Blue.png"
 
 
 main_music_path = join("assets", "Audio", "cottagecore-17463.mp3")
@@ -133,18 +134,23 @@ music_options = OptionBox(
     700, 265, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
     ["on", "off"])
 
+background_options = OptionBox(
+    700, 460, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.SysFont(None, 30), 
+    ["Blue", "Brown", "Gray", "Green", "Pink", "Purple", "Yellow"])
+
 
 def setting(window):
+    global user_character
+    global block_choice
+    global music_choice
+    global background_choice
+
     clock = pygame.time.Clock()
-    background, bg_image = get_background("Blue.png")
+    background, bg_image = get_background(background_choice)
 
     back_img_path = join("assets", "Menu", "Buttons", "Back.png")
     back_img = pygame.image.load(back_img_path).convert_alpha()
     back_button = button.Button(925, 20, back_img, 3.5)
-
-    global user_character
-    global block_choice
-    global music_choice
 
     run_setting = True
 
@@ -187,6 +193,23 @@ def setting(window):
                 block_choice = 5
             elif selected_block_option == 5:
                 block_choice = 6
+
+        selected_background_option = background_options.update(event_list)
+        if selected_background_option >= 0:
+            if selected_background_option == 0:
+                background_choice = "Blue.png"
+            elif selected_background_option == 1:
+                background_choice = "Brown.png"
+            elif selected_background_option == 2:
+                background_choice = "Gray.png"
+            elif selected_background_option == 3:
+                background_choice = "Green.png"
+            elif selected_background_option == 4:
+                background_choice = "Pink.png"
+            elif selected_background_option == 5:
+                background_choice = "Purple.png"
+            elif selected_background_option == 6:
+                background_choice = "Yellow.png"
     
         draw_setting(window, background, bg_image, back_button)
 
@@ -439,18 +462,32 @@ def draw_setting(window, background, bg_image, back_button):
         window.blit(bg_image, tile)
 
     font = pygame.font.Font('Caprasimo-Regular.ttf', 40)
+    font_2 = pygame.font.Font('Caprasimo-Regular.ttf', 70)
+
+    text = font_2.render('Settings', True, (0, 0, 0))
+    textRect = text.get_rect()
+    textRect.center = (WIDTH // 2, 100)
+    window.blit(text, textRect)
+
     text = font.render('Character', True, (0, 0, 0))
     textRect = text.get_rect()
     textRect.center = (120, 280)
     window.blit(text, textRect)
+
     text_2 = font.render('Block', True, (0, 0, 0))
     textRect_2 = text_2.get_rect()
     textRect_2.center = (100, 475)
     window.blit(text_2, textRect_2)
+
     text_2 = font.render('Music', True, (0, 0, 0))
     textRect_2 = text_2.get_rect()
     textRect_2.center = (600, 280)
     window.blit(text_2, textRect_2)
+
+    text_3 = font.render('Sky', True, (0, 0, 0))
+    textRect_3 = text_3.get_rect()
+    textRect_3.center = (600, 475)
+    window.blit(text_3, textRect_3)
 
     if back_button.draw(window):
             run_setting = False
@@ -459,6 +496,7 @@ def draw_setting(window, background, bg_image, back_button):
     character_options.draw(window)
     block_options.draw(window)
     music_options.draw(window)
+    background_options.draw(window)
 
     pygame.display.update()
 
@@ -559,7 +597,7 @@ def handle_move(player, objects):
 
 def menu(window):
     clock = pygame.time.Clock()
-    background, bg_image = get_background("Blue.png")
+    background, bg_image = get_background(background_choice)
 
     setting_img_path = join("assets", "Menu", "Buttons", "Settings.png")
     start_img = pygame.image.load('start_btn.png').convert_alpha()
@@ -595,7 +633,7 @@ def menu(window):
 
 def main(window):
     clock = pygame.time.Clock()
-    background, bg_image = get_background("Blue.png")
+    background, bg_image = get_background(background_choice)
 
     block_size = 96
 
