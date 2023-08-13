@@ -35,7 +35,11 @@ def play_damage_music():
     pygame.mixer.music.set_volume(0.7)
     pygame.mixer.music.play()
 
-
+def play_shift_music():
+    damage_music_path = join("assets", "Audio", "teleport-14639.mp3")
+    pygame.mixer.music.load(damage_music_path)
+    pygame.mixer.music.set_volume(0.7)
+    pygame.mixer.music.play()
 
 def flip(sprites):
     return [pygame.transform.flip(sprite, True, False) for sprite in sprites]
@@ -302,6 +306,7 @@ class Player(pygame.sprite.Sprite):
             
     def move_right_shift(self, vel):
         self.x_vel = vel + 184
+        play_shift_music()
         
         if self.direction != "right":
             self.direction = "right"
